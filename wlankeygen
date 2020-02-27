@@ -1,0 +1,13 @@
+#!/bin/bash
+
+WLANPSK=$(dd if=/dev/random count=1 status=none | tr -d -c 'a-z' | cut -b1-10)
+sed -ie "s/wpa_passphrase=.*/wpa_passphrase=${WLANPSK}/" /etc/hostapd/hostapd.conf
+systemctl restart hostapd
+qrencode -t PNG -o /var/guestwlan/windows.png -s 4 "WIFI;T:WPA;S:WiFiButler;P:${WLANPSK};H:false;"
+qrencode -t PNG -o /var/guestwlan/android_ios.png -s 4 "WIFI:T:WPA;S:WiFiButler;P:${WLANPSK};H:false;"
+
+cat > /var/guestwlan/wlan.cfg <<EOF
+[WLAN]
+wlanssid=WiFiButler
+wlanpsk=${WLANPSK}
+EOF
